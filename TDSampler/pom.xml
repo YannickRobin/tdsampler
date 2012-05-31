@@ -20,8 +20,8 @@
   	</developer>
   </developers>
   <scm>
-    <connection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/tdsampler</connection>
-    <developerConnection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/tdsampler</developerConnection>
+    <connection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/TDSampler</connection>
+    <developerConnection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/TDSampler</developerConnection>
     <url>http://code.google.com/p/tdsampler/source/browse/</url>
   </scm>
   
