@@ -1,0 +1,28 @@
+#surefire
+#Thu May 31 17:33:07 CEST 2012
+testClassesDirectory=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/target/test-classes
+classPathUrl.3=/Users/yannick/.m2/repository/junit/junit/4.4/junit-4.4.jar
+classPathUrl.2=/Users/yannick/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar
+useManifestOnlyJar=true
+classPathUrl.1=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/target/classes
+reportsDirectory=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/target/surefire-reports
+classPathUrl.0=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/target/test-classes
+dirscanner.0=directoryScannerOptions
+providerConfiguration=org.apache.maven.surefire.junit4.JUnit4Provider
+testSuiteDefinitionTestSourceDirectory=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/src/test/java
+surefireClassPathUrl.1=/Users/yannick/.m2/repository/org/apache/maven/surefire/surefire-api/2.7.1/surefire-api-2.7.1.jar
+surefireClassPathUrl.0=/Users/yannick/.m2/repository/org/apache/maven/surefire/surefire-junit4/2.7.1/surefire-junit4-2.7.1.jar
+report.2=org.apache.maven.surefire.report.XMLReporter
+useSystemClassLoader=true
+report.1=org.apache.maven.surefire.report.BriefFileReporter
+report.0=org.apache.maven.surefire.report.ForkingConsoleReporter
+excludes0=**/*$*
+isTrimStackTrace=true
+dirscanner.0.params=/Users/yannick/Documents/eclipse_workspace/perso/TDSampler/target/test-classes|[**/Test*.java, **/*Test.java, **/*TestCase.java]|[**/*$*]
+enableAssertions=true
+includes2=**/*TestCase.java
+failIfNoTests=false
+includes1=**/*Test.java
+dirscanner.0.types=java.io.File|java.util.ArrayList|java.util.ArrayList
+includes0=**/Test*.java
+childDelegation=false
