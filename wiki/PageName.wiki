@@ -1,16 +1,8 @@
-#summary One-sentence summary of this page.
-
 = Start with Eclipse =
 
-  * Start Java Application
-    * `Main`
-{{{com.ebizance.tdsampler.TDSampler}}}
-
-    * `Arguments`
-/Users/yannick/Documents/projects/Hybris/GL/test05-30-3
-
-{{{com.ebizance.tdsampler.TDSampler}}}
-
+  * Run > Run As > Start `Java Application`
+    * `Main`: {{{com.ebizance.tdsampler.TDSampler}}}
+    * `Arguments` :  {{{<path to the thread dump folder>}}}
   * `Environment`
     * log4j.configuration=src/main/conf/log4j.properties
     * tdsampler.configuration=src/main/conf/conf.properties
