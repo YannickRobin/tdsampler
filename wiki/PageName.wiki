@@ -3,10 +3,10 @@
 = Start with Eclipse =
 
   * Start Java Application
-  * `Main`
+    * `Main`
 {{{com.ebizance.tdsampler.TDSampler}}}
 
-  * `Arguments`
+    * `Arguments`
 /Users/yannick/Documents/projects/Hybris/GL/test05-30-3
 
 {{{com.ebizance.tdsampler.TDSampler}}}
