@@ -1,1 +1,1 @@
-java -Dlog4j.configuration=file:../conf/log4j.properties -jar ../lib/AzulStackProf-${project.version}.jar %1
+java -Dlog4j.configuration=file:../conf/log4j.properties -jar ../lib/TDSampler-${project.version}.jar %1
