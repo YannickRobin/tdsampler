@@ -1,16 +1,23 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
+= Start with Eclipse =
 
-Add your content here.
+  * Start Java Application
+  * `Main`
+{{{com.ebizance.tdsampler.TDSampler}}}
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
+  * `Arguments`
+/Users/yannick/Documents/projects/Hybris/GL/test05-30-3
 
 {{{com.ebizance.tdsampler.TDSampler}}}
+
+  * `Environment`
+    * log4j.configuration=src/main/conf/log4j.properties
+    * tdsampler.configuration=src/main/conf/conf.properties
+
+= New release =
+
+  * Commit all your changes
+  * {{{mvn -Dusername=[svnusername] -Dpassword=[svnpassword] release:prepare}}}
+  * {{{mvn release:perform}}}
+  * Upload {{{TDSampler/target/checkout/target}}}
