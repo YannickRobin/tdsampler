@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ebizance.tdsampler.model.Thread;
+
 public class TDSamplerUtil {
 
     public static void mergeMethods(Map<String,Integer> methods1, Map<String,Integer> methods2)
@@ -55,4 +57,23 @@ public class TDSamplerUtil {
     	}
     	return someMap;
     }
+    
+    public static int getState(String sState) {	
+		int state;
+		
+    	if (sState.equals("RUNNABLE"))
+			state=Thread.STATE_RUNNABLE;		
+		else if (sState.equals("WAITING"))
+			state=Thread.STATE_WAITING;		
+		else if (sState.equals("TIMED_WAITING"))
+			state=Thread.STATE_TIMED_WAITING;
+		else if (sState.equals("BLOCKED"))
+			state=Thread.STATE_BLOCKED;
+		else if (sState.equals("IOWAIT"))
+			state=Thread.STATE_IOWAIT;
+		else
+			state=Thread.STATE_UNKNOWN;
+		
+		return state;
+	}
 }

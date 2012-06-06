@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.model.Thread;
 
 public class ThreadDumpImpl extends ThreadDump {
@@ -16,6 +17,8 @@ public class ThreadDumpImpl extends ThreadDump {
     private static final String CONFIGURATION_FILE_DEFAULT = "../conf/conf.properties"; 
     	
     static boolean countDuplicateMethods_;
+    static String includeListThreadName_;    
+    static String includeListThreadState_;    
     static String includeListMethod_;
     static String excludeListMethod_;
     static String includeListThread_;
@@ -34,6 +37,8 @@ public class ThreadDumpImpl extends ThreadDump {
     		   			
 			properties.load(new FileInputStream(configurationFile));
 			countDuplicateMethods_ = Boolean.parseBoolean(properties.getProperty("countDuplicateMethods", "false"));
+			includeListThreadName_ = properties.getProperty("includeListThreadName", "");
+			includeListThreadState_ = properties.getProperty("includeListThreadState", "");
 			includeListMethod_ = properties.getProperty("includeListMethod", "");
 			excludeListMethod_ = properties.getProperty("excludeListMethod", "");
 			includeListThread_ = properties.getProperty("includeListThread", "");
@@ -53,18 +58,19 @@ public class ThreadDumpImpl extends ThreadDump {
 	}
 
 	@Override
-	public boolean isValidThreadHeader(Thread thread) {
-		if (thread.getState() == Thread.STATE_RUNNABLE)
-			return true;
-		else
-			return false;
+	public boolean isValidThreadHeader(Thread thread) {		
+		return isValidThreadName(thread) && isValidThreadState(thread);
 	}
-	
+		
 	@Override
 	public boolean isValidThread(Thread thread) {
 		
-		//exclude IOWaitState
-		if (thread.getMethods().size() == 0 || isIOWaitState(thread))
+		if (thread.getMethods().size() == 0)
+			return false;
+		
+		setIOWaitState(thread);
+		//check state thread state again (for IOWait)
+		if (!isValidThreadState(thread))
 			return false;
 		
 		//exclude thread
@@ -88,8 +94,45 @@ public class ThreadDumpImpl extends ThreadDump {
 				return true;
 		}	
 		
+		return false;				
+	}
+
+	private boolean isValidThreadName(Thread thread) {
+		if (includeListThreadName_.equals(""))
+			return true;
+		
+		String[] tokensIncludeList = includeListThreadName_.split("[,]");
+		
+		for (int i=0; i<tokensIncludeList.length;i++)
+		{
+			if (thread.getName().contains(tokensIncludeList[i]))
+				return true;
+		}
+		
 		return false;
-				
+	}
+	
+	private boolean isValidThreadState(Thread thread) {
+		if (includeListThreadState_.equals(""))
+			return true;
+		
+		String[] tokensIncludeList = includeListThreadState_.split("[,]");
+		
+		for (int i=0; i<tokensIncludeList.length;i++)
+		{
+			int state = TDSamplerUtil.getState(tokensIncludeList[i]);
+			if (thread.getState() == state)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	//I/O Wait thread has RUNNABLE state but is an interruptible sleep 
+	private void setIOWaitState(Thread thread)
+	{
+		if (isIOWaitState(thread))
+			thread.setState(Thread.STATE_IOWAIT);
 	}
 	
 	//I/O Wait thread has RUNNABLE state but is an interruptible sleep 

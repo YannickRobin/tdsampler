@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.ebizance.tdsampler.TDSamplerUtil;
+
 /**
  * This is a POJO representing the current parsed thread.<br/>
  * This object is loaded into drools engine so it can be used
@@ -24,7 +26,8 @@ public class Thread {
 	public static final int STATE_WAITING=1;
 	public static final int STATE_TIMED_WAITING=2;
 	public static final int STATE_BLOCKED=3;
-	public static final int STATE_UNKNOWN=3;
+	public static final int STATE_IOWAIT=4;
+	public static final int STATE_UNKNOWN=5;
 	
 	public String getName() {
 		return name;
@@ -51,16 +54,7 @@ public class Thread {
 	}
 
 	public void setState(String sState) {	
-		if (sState.equals("RUNNABLE"))
-			state=STATE_RUNNABLE;		
-		else if (sState.equals("WAITING"))
-			state=STATE_WAITING;		
-		else if (sState.equals("TIMED_WAITING"))
-			state=STATE_TIMED_WAITING;
-		else if (sState.equals("BLOCKED"))
-			state=STATE_BLOCKED;
-		else
-			state=STATE_UNKNOWN;
+		state = TDSamplerUtil.getState(sState);
 	}	
 	
 	public Map<String, Integer> getMethods() {
