@@ -3,13 +3,16 @@ package com.ebizance.tdsampler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.ebizance.tdsampler.model.Thread;
 import com.ebizance.tdsampler.stack.ThreadDump;
 import com.ebizance.tdsampler.stack.ThreadDumpImpl;
 
@@ -74,6 +77,8 @@ public class TDSampler
     	logger.info("");
     	
     	Map<String,Integer> methods = null;
+    	Map<Integer, Integer[]> threadStates = new HashMap<Integer, Integer[]>();
+    	
     	int threadCounter = 0;
     	for (int i=0; i< stackFiles.length; i++)
     	{
@@ -90,15 +95,26 @@ public class TDSampler
     		}
     		
     		threadCounter += threadDump.getThreadCounter();
+    		Integer[] threadStateCounter = new Integer[6];
+    		threadStateCounter[Thread.STATE_RUNNABLE]=threadDump.getThreadCounterRunnable();
+    		threadStateCounter[Thread.STATE_WAITING]=threadDump.getThreadCounterWaiting();
+    		threadStateCounter[Thread.STATE_TIMED_WAITING]=threadDump.getThreadCounterTimedWaiting();
+    		threadStateCounter[Thread.STATE_BLOCKED]=threadDump.getThreadCounterBlocked();
+    		threadStateCounter[Thread.STATE_IOWAIT]=threadDump.getThreadCounterIOWait();
+    		threadStateCounter[Thread.STATE_UNKNOWN]=threadDump.getThreadCounterUnknown();
+    		threadStates.put(i, threadStateCounter);
+    		
     		Map<String,Integer> methodsTemp = threadDump.getMethods();
     		if (methods == null)
     			methods = methodsTemp;
     		else
     			TDSamplerUtil.mergeMethods(methods, methodsTemp);
     	}
-
-    	System.out.println("***Thread dump sampler result for " + threadCounter + " thread(s) ***");
     	methods = TDSamplerUtil.sortHashMapByValues(methods, false);
+    	
+    	System.out.println("***Thread dump sampler result for " + threadCounter + " thread(s) ***");
+    	if (TDSamplerConfig.displayThreadStateReport_)
+    		displayThreads(threadStates);
     	displayMethods(methods, threadCounter);
     }
 
@@ -128,6 +144,29 @@ public class TDSampler
     	
     	return dir.list();
     }
+    
+    private static void displayThreads(Map<Integer, Integer[]> threadStates)
+    {
+    	System.out.println("Thread state report:");
+    	System.out.println("ID\tR\tIO\tW\tTM\tB\tU");
+    	
+        Vector<Integer> v = new Vector<Integer>(threadStates.keySet());
+        Collections.sort(v);
+
+    	for (Iterator it= v.iterator(); it.hasNext(); )
+    	{
+    		Integer threadDumpId = (Integer)it.next();
+    		Integer[] states = threadStates.get(threadDumpId);
+
+    		System.out.println(threadDumpId + "\t"
+    				+ states[Thread.STATE_RUNNABLE] + "\t"
+    				+ states[Thread.STATE_IOWAIT] + "\t"    				
+    				+ states[Thread.STATE_WAITING] + "\t"
+    				+ states[Thread.STATE_TIMED_WAITING] + "\t"
+    				+ states[Thread.STATE_BLOCKED] + "\t"
+    				+ states[Thread.STATE_UNKNOWN]);
+    	}
+	}
     
     private static void displayMethods(final Map<String,Integer> methods, int threadCounter)
     {
