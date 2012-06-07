@@ -8,49 +8,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.ebizance.tdsampler.TDSamplerConfig;
 import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.model.Thread;
 
 public class ThreadDumpImpl extends ThreadDump {
 	
     private static final Logger logger = Logger.getLogger(ThreadDumpImpl.class);
-    private static final String CONFIGURATION_FILE_DEFAULT = "../conf/conf.properties"; 
-    	
-    static boolean countDuplicateMethods_;
-    static String includeListThreadName_;    
-    static String includeListThreadState_;    
-    static String includeListMethod_;
-    static String excludeListMethod_;
-    static String includeListThread_;
-    static String excludeListThread_;
-    static String includeListIOWait_;
-      
-    static {
-    	Properties properties = new Properties();
-    	try {
-    		
-    		String configurationFile;
-    		if (System.getenv("tdsampler.configuration") != null)
-    			configurationFile = System.getenv("tdsampler.configuration");
-    		else
-    			configurationFile = CONFIGURATION_FILE_DEFAULT;
-    		   			
-			properties.load(new FileInputStream(configurationFile));
-			countDuplicateMethods_ = Boolean.parseBoolean(properties.getProperty("countDuplicateMethods", "false"));
-			includeListThreadName_ = properties.getProperty("includeListThreadName", "");
-			includeListThreadState_ = properties.getProperty("includeListThreadState", "");
-			includeListMethod_ = properties.getProperty("includeListMethod", "");
-			excludeListMethod_ = properties.getProperty("excludeListMethod", "");
-			includeListThread_ = properties.getProperty("includeListThread", "");
-			excludeListThread_ = properties.getProperty("excludeListThread", "");
-			includeListIOWait_ = properties.getProperty("includeListIOWait", "");
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    }
     
 	public ThreadDumpImpl(String filePath)
 	{
@@ -74,7 +38,7 @@ public class ThreadDumpImpl extends ThreadDump {
 			return false;
 		
 		//exclude thread
-		String[] tokensExcludeListThread = includeListThread_.split("[,]");
+		String[] tokensExcludeListThread = TDSamplerConfig.includeListThread_.split("[,]");
 		
 		for (int i=0; i<tokensExcludeListThread.length;i++)
 		{
@@ -83,10 +47,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		}
 		
 		//include thread
-		if (includeListThread_.equals(""))
+		if (TDSamplerConfig.includeListThread_.equals(""))
 			return true;
 		
-		String[] tokensIncludeListThread = includeListThread_.split("[,]");
+		String[] tokensIncludeListThread = TDSamplerConfig.includeListThread_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeListThread.length;i++)
 		{
@@ -98,10 +62,10 @@ public class ThreadDumpImpl extends ThreadDump {
 	}
 
 	private boolean isValidThreadName(Thread thread) {
-		if (includeListThreadName_.equals(""))
+		if (TDSamplerConfig.includeListThreadName_.equals(""))
 			return true;
 		
-		String[] tokensIncludeList = includeListThreadName_.split("[,]");
+		String[] tokensIncludeList = TDSamplerConfig.includeListThreadName_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeList.length;i++)
 		{
@@ -113,10 +77,10 @@ public class ThreadDumpImpl extends ThreadDump {
 	}
 	
 	private boolean isValidThreadState(Thread thread) {
-		if (includeListThreadState_.equals(""))
+		if (TDSamplerConfig.includeListThreadState_.equals(""))
 			return true;
 		
-		String[] tokensIncludeList = includeListThreadState_.split("[,]");
+		String[] tokensIncludeList = TDSamplerConfig.includeListThreadState_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeList.length;i++)
 		{
@@ -143,10 +107,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		if (iterator.hasNext())
 			firstKey = iterator.next();
 		
-		if (includeListIOWait_.equals(""))
+		if (TDSamplerConfig.includeListIOWait_.equals(""))
 			return false;
 		
-		String[] tokensIncludeListIOWait = includeListIOWait_.split("[,]");
+		String[] tokensIncludeListIOWait = TDSamplerConfig.includeListIOWait_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeListIOWait.length;i++)
 		{
@@ -161,7 +125,7 @@ public class ThreadDumpImpl extends ThreadDump {
 	public boolean isValidMethod(String str)
 	{
 		//Include IOWait thread (mandatory for isIOWaitState validation)		
-		String[] tokensIncludeListIOWait = includeListIOWait_.split("[,]");
+		String[] tokensIncludeListIOWait = TDSamplerConfig.includeListIOWait_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeListIOWait.length;i++)
 		{
@@ -171,9 +135,9 @@ public class ThreadDumpImpl extends ThreadDump {
 		
 		
 		//Exclude methods
-		if (!excludeListMethod_.equals(""))
+		if (!TDSamplerConfig.excludeListMethod_.equals(""))
 		{	
-			String[] tokensExcludeListMethod = excludeListMethod_.split("[,]");
+			String[] tokensExcludeListMethod = TDSamplerConfig.excludeListMethod_.split("[,]");
 			
 			for (int i=0; i<tokensExcludeListMethod.length;i++)
 			{
@@ -183,10 +147,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		}
 		
 		//Include methods
-		if (includeListMethod_.equals(""))
+		if (TDSamplerConfig.includeListMethod_.equals(""))
 			return true;
 		
-		String[] tokensIncludeListMethod = includeListMethod_.split("[,]");
+		String[] tokensIncludeListMethod = TDSamplerConfig.includeListMethod_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeListMethod.length;i++)
 		{
@@ -197,8 +161,4 @@ public class ThreadDumpImpl extends ThreadDump {
 		return false;
 	}
 
-	@Override
-	public boolean countDuplicateMethods() {
-		return countDuplicateMethods_;
-	}	
 }

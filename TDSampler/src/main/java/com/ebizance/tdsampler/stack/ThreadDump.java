@@ -7,21 +7,31 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
 
+import com.ebizance.tdsampler.TDSamplerConfig;
 import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.model.Thread;
 
 /**
+ * 
+ * This abstract class is responsible for the thread dump parsing.<br/>
  *  
  * @author Yannick Robin
  * 
  */
 
 public abstract class ThreadDump {
-    private Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
+
+	private Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
     private static final Logger logger = Logger.getLogger(ThreadDump.class);
     private BufferedReader in = null;
-    int threadCounter = 0;
-
+    private int threadCounter = 0;
+    private int threadCounterRunnable = 0;
+    private int threadCounterWaiting = 0;
+    private int threadCounterTimedWaiting = 0;
+    private int threadCounterBlocked = 0;
+	private int threadCounterIOWait = 0;
+    private int threadCounterUnknown = 0;
+    
 	public ThreadDump(String filePath)
 	{
 		try {
@@ -82,7 +92,7 @@ public abstract class ThreadDump {
 						thread.getMethods().put(method, 1);
 					else
 					{
-						if (countDuplicateMethods())
+						if (TDSamplerConfig.countDuplicateMethods_)
 							thread.getMethods().put(method, counter + 1);
 					}
 				}
@@ -93,6 +103,27 @@ public abstract class ThreadDump {
 			return;
 
 		threadCounter++;
+		int state  = thread.getState();		
+		switch(state) {
+			case Thread.STATE_RUNNABLE:
+				threadCounterRunnable++;
+				break;
+			case Thread.STATE_WAITING:
+				threadCounterWaiting++;
+				break;
+			case Thread.STATE_TIMED_WAITING:
+				threadCounterTimedWaiting++;
+				break;
+			case Thread.STATE_BLOCKED:
+				threadCounterBlocked++;
+				break;
+			case Thread.STATE_IOWAIT:
+				threadCounterIOWait ++;
+				break;				
+			case Thread.STATE_UNKNOWN:
+				threadCounterUnknown++;
+		}
+				
 		TDSamplerUtil.mergeMethods(methods, thread.getMethods());
 	}
 	
@@ -105,8 +136,31 @@ public abstract class ThreadDump {
 		return threadCounter;
 	}
 	
+    public int getThreadCounterRunnable() {
+		return threadCounterRunnable;
+	}
+
+	public int getThreadCounterWaiting() {
+		return threadCounterWaiting;
+	}
+
+	public int getThreadCounterTimedWaiting() {
+		return threadCounterTimedWaiting;
+	}
+
+	public int getThreadCounterBlocked() {
+		return threadCounterBlocked;
+	}
+
+	public int getThreadCounterIOWait() {
+		return threadCounterIOWait;
+	}
+
+	public int getThreadCounterUnknown() {
+		return threadCounterUnknown;
+	}
+	
 	public abstract boolean isValidThreadHeader(Thread thread);
 	public abstract boolean isValidThread(Thread thread);
 	public abstract boolean isValidMethod(String str);
-	public abstract boolean countDuplicateMethods();
 }
