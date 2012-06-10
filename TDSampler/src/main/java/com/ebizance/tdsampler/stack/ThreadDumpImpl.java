@@ -1,10 +1,6 @@
 package com.ebizance.tdsampler.stack;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -38,7 +34,7 @@ public class ThreadDumpImpl extends ThreadDump {
 			return false;
 		
 		//exclude thread
-		String[] tokensExcludeListThread = TDSamplerConfig.includeListThread_.split("[,]");
+		String[] tokensExcludeListThread = TDSamplerConfig.excludeListThread_.split("[,]");
 		
 		for (int i=0; i<tokensExcludeListThread.length;i++)
 		{
