@@ -8,6 +8,12 @@ import com.ebizance.tdsampler.TDSamplerConfig;
 import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.model.Thread;
 
+/**
+ * 
+ * @author Yannick Robin
+ *
+ */
+
 public class ThreadDumpImpl extends ThreadDump {
 	
     private static final Logger logger = Logger.getLogger(ThreadDumpImpl.class);
