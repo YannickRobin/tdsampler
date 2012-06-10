@@ -9,6 +9,12 @@ import java.util.Map;
 
 import com.ebizance.tdsampler.model.Thread;
 
+/**
+ * 
+ * @author Yannick Robin
+ *
+ */
+
 public class TDSamplerUtil {
 
     public static void mergeMethods(Map<String,Integer> methods1, Map<String,Integer> methods2)
