@@ -1,5 +1,6 @@
 package com.ebizance.tdsampler;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class TDSamplerConfig
 {
 	private static final Logger logger = Logger.getLogger(TDSamplerConfig.class);
 	
-    private static final String CONFIGURATION_FILE_DEFAULT = "../conf/conf.properties"; 
+    private static final String CONFIGURATION_FILE_DEFAULT = ".." + File.separator + "conf" + File.separator + "conf.properties"; 
 	
     public static boolean displayThreadStateReport_;
     public static boolean countDuplicateMethods_;
