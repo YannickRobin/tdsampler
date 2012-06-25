@@ -21,19 +21,21 @@ import com.ebizance.tdsampler.model.Thread;
 
 public abstract class ThreadDump {
 
-	private Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
     private static final Logger logger = Logger.getLogger(ThreadDump.class);
-    private BufferedReader in = null;
-    private int threadCounter = 0;
-    private int threadCounterRunnable = 0;
-    private int threadCounterWaiting = 0;
-    private int threadCounterTimedWaiting = 0;
-    private int threadCounterBlocked = 0;
-	private int threadCounterIOWait = 0;
-    private int threadCounterUnknown = 0;
+    
+	protected Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
+    protected BufferedReader in = null;
+    protected int threadCounter = 0;
+    protected int threadCounterRunnable = 0;
+    protected int threadCounterWaiting = 0;
+    protected int threadCounterTimedWaiting = 0;
+    protected int threadCounterBlocked = 0;
+    protected int threadCounterIOWait = 0;
+    protected int threadCounterUnknown = 0;
     
 	public ThreadDump(String filePath)
 	{
+		logger.debug("File: " + filePath);
 		try {
 		    in = new BufferedReader(new FileReader(filePath));
 		    String str;
@@ -56,11 +58,14 @@ public abstract class ThreadDump {
     
 	private void parseThread(String str) throws IOException
 	{
+		logger.debug("Thread: " + str);
 		Thread thread = new Thread();
 		
 		//Thread name
 		String[] tokens = str.split("[\"]");
+		
 		String threadName = tokens[1];
+		
 		if (threadName == null || threadName.equals(""))
 			return;
 		thread.setName(threadName);
@@ -68,6 +73,7 @@ public abstract class ThreadDump {
 		//Thread state	
 		str = in.readLine();
 		tokens = str.split("[:( ]");
+		
 		if (tokens.length > 5)
 		{
 			String threadState = tokens[5];

@@ -1,6 +1,8 @@
 package com.ebizance.tdsampler;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.ebizance.tdsampler.model.Thread;
 import com.ebizance.tdsampler.stack.ThreadDump;
 import com.ebizance.tdsampler.stack.ThreadDumpImpl;
+import com.ebizance.tdsampler.stack.ThreadDumpHybris;
 
 /**
  * Command line application to run Thread dump sampler.<br/><br/>
@@ -82,7 +85,35 @@ public class TDSampler
     	int threadCounter = 0;
     	for (int i=0; i< stackFiles.length; i++)
     	{
-    		ThreadDump threadDump = new ThreadDumpImpl(dirpath + File.separator + stackFiles[i]);
+            Class partypes[] = new Class[1];
+            partypes[0] = String.class;
+            Constructor ct = null;
+			try {
+				ct = TDSamplerConfig.implementationClass_.getConstructor(partypes);
+			} catch (SecurityException e2) {
+				e2.printStackTrace();
+			} catch (NoSuchMethodException e2) {
+				e2.printStackTrace();
+			}
+    		Object arglist[] = new Object[1];
+    		arglist[0] = dirpath + File.separator + stackFiles[i];
+    		ThreadDump threadDump = null;
+			try {
+				threadDump = (ThreadDump) ct.newInstance(arglist);
+			} catch (IllegalArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (InstantiationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IllegalAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (InvocationTargetException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+    		
     		logger.info("Parsing " + stackFiles[i] + "...");
     		try {
     			threadDump.parse();
