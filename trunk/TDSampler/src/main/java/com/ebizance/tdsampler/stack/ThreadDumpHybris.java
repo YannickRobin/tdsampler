@@ -1,5 +1,6 @@
 package com.ebizance.tdsampler.stack;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -14,15 +15,109 @@ import com.ebizance.tdsampler.model.Thread;
  *
  */
 
-public class ThreadDumpImpl extends ThreadDump {
+public class ThreadDumpHybris extends ThreadDump {
 	
     private static final Logger logger = Logger.getLogger(ThreadDumpImpl.class);
     
-	public ThreadDumpImpl(String filePath)
+	public ThreadDumpHybris(String filePath)
 	{
 		super(filePath);
 	}
-
+	
+    public void parse() throws IOException
+    {
+    	String str;
+		while ((str = in.readLine()) != null) {	
+			if (str.contains("tid="))
+				parseThread(str);
+		}
+    }	
+    
+	private void parseThread(String str) throws IOException
+	{
+		logger.debug("Thread: " + str);
+		Thread thread = new Thread();
+		
+		//Thread name
+		String[] tokens = str.split("[\"]");
+		
+		String threadName = tokens[1];
+		
+		if (threadName == null || threadName.equals(""))
+			return;
+		thread.setName(threadName);
+		
+		logger.debug("Name: " + thread.getName());
+		
+		//Thread state	
+		tokens = str.split("[\" ]");
+		
+		if (tokens.length > 6)
+		{
+			String threadState = tokens[6];
+			if (threadState == null || threadState.equals(""))
+				return;
+			thread.setState(threadState);
+		}
+		else
+			return;
+		
+		logger.debug("State: " + thread.getState());
+		
+		if (!isValidThreadHeader(thread))
+			return;
+		
+		String strMethod = null;
+		while ((strMethod = super.in.readLine()) != null 
+				&& !strMethod.equals("")
+				&& strMethod.contains("at ")
+			) {
+			logger.debug("method: " + strMethod);
+			if (strMethod.contains("at "))
+			{				
+				String method = strMethod.substring("	at ".length(), strMethod.length());
+				if (isValidMethod(strMethod))
+				{
+					Integer counter = (Integer)thread.getMethods().get(method);
+					if (counter == null)
+						thread.getMethods().put(method, 1);
+					else
+					{
+						if (TDSamplerConfig.countDuplicateMethods_)
+							thread.getMethods().put(method, counter + 1);
+					}
+				}
+			}
+		}
+		
+		if (!isValidThread(thread))
+			return;
+		
+		super.threadCounter++;
+		int state  = thread.getState();		
+		switch(state) {
+			case Thread.STATE_RUNNABLE:
+				super.threadCounterRunnable++;
+				break;
+			case Thread.STATE_WAITING:
+				super.threadCounterWaiting++;
+				break;
+			case Thread.STATE_TIMED_WAITING:
+				super.threadCounterTimedWaiting++;
+				break;
+			case Thread.STATE_BLOCKED:
+				super.threadCounterBlocked++;
+				break;
+			case Thread.STATE_IOWAIT:
+				super.threadCounterIOWait ++;
+				break;				
+			case Thread.STATE_UNKNOWN:
+				super.threadCounterUnknown++;
+		}
+				
+		TDSamplerUtil.mergeMethods(super.methods, thread.getMethods());
+	}
+		
 	@Override
 	public boolean isValidThreadHeader(Thread thread) {		
 		return isValidThreadName(thread) && isValidThreadState(thread);
@@ -33,7 +128,7 @@ public class ThreadDumpImpl extends ThreadDump {
 		
 		if (thread.getMethods().size() == 0)
 		{
-			logger.debug("Thread no valid because no method");
+			logger.debug("Thread no valid because no method.");
 			return false;
 		}
 		
@@ -41,7 +136,7 @@ public class ThreadDumpImpl extends ThreadDump {
 		//check state thread state again (for IOWait)
 		if (!isValidThreadState(thread))
 		{
-			logger.debug("Thread no valid because no valid state");
+			logger.debug("Thread no valid because no valid state.");
 			return false;
 		}
 		
@@ -52,7 +147,7 @@ public class ThreadDumpImpl extends ThreadDump {
 		{
 			if (thread.getMethods().containsKey(tokensExcludeListThread[i]))
 			{
-				logger.debug("Thread no valid because into the exlude list");
+				logger.debug("Thread no valid because into the exlude list.");
 				return false;
 			}
 		}
@@ -68,7 +163,7 @@ public class ThreadDumpImpl extends ThreadDump {
 			if (thread.getMethods().containsKey(tokensIncludeListThread[i]))
 				return true;
 		}
-		logger.debug("Thread no valid because not into the include list");
+		logger.debug("Thread no valid because not into the include list.");
 		
 		return false;				
 	}
@@ -85,7 +180,7 @@ public class ThreadDumpImpl extends ThreadDump {
 				return true;
 		}
 		
-		logger.debug("Thread no valid thread name");
+		logger.debug("Thread no valid thread name.");
 		
 		return false;
 	}
@@ -103,7 +198,7 @@ public class ThreadDumpImpl extends ThreadDump {
 				return true;
 		}
 		
-		logger.debug("Thread no valid because no valid state");
+		logger.debug("Thread no valid because no valid state.");
 		return false;
 	}
 	
@@ -145,7 +240,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		for (int i=0; i<tokensIncludeListIOWait.length;i++)
 		{
 			if (str.contains(tokensIncludeListIOWait[i]))
+			{
+				logger.debug("Method valid because IO-Wait.");
 				return true;
+			}
 		}
 		
 		
@@ -157,23 +255,31 @@ public class ThreadDumpImpl extends ThreadDump {
 			for (int i=0; i<tokensExcludeListMethod.length;i++)
 			{
 				if (str.contains(tokensExcludeListMethod[i]))
+				{
+					logger.debug("Method not valid because excluded.");
 					return false;
+				}
 			}	
 		}
 		
 		//Include methods
 		if (TDSamplerConfig.includeListMethod_.equals(""))
+		{
+			logger.debug("Method valid because not includeListMethod parameter.");
 			return true;
+		}
 		
 		String[] tokensIncludeListMethod = TDSamplerConfig.includeListMethod_.split("[,]");
 		
 		for (int i=0; i<tokensIncludeListMethod.length;i++)
 		{
 			if (str.contains(tokensIncludeListMethod[i]))
+			{
+				logger.debug("Method valid because included.");
 				return true;
+			}
 		}	
 		
 		return false;
 	}
-
 }

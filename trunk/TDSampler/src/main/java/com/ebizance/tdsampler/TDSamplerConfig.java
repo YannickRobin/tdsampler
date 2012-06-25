@@ -18,7 +18,8 @@ public class TDSamplerConfig
 	private static final Logger logger = Logger.getLogger(TDSamplerConfig.class);
 	
     private static final String CONFIGURATION_FILE_DEFAULT = ".." + File.separator + "conf" + File.separator + "conf.properties"; 
-	
+    private static final String DEFAULT_IMPLEMENTATION_CLASS = "com.ebizance.tdsampler.stack.ThreadDumpImpl";
+    
     public static boolean displayThreadStateReport_;
     public static boolean countDuplicateMethods_;
     public static String includeListThreadName_;    
@@ -28,6 +29,7 @@ public class TDSamplerConfig
     public static String includeListThread_;
     public static String excludeListThread_;
     public static String includeListIOWait_;
+    public static Class implementationClass_;
       
     static {
     	Properties properties = new Properties();
@@ -49,6 +51,14 @@ public class TDSamplerConfig
 			includeListThread_ = properties.getProperty("includeListThread", "");
 			excludeListThread_ = properties.getProperty("excludeListThread", "");
 			includeListIOWait_ = properties.getProperty("includeListIOWait", "");
+			String implementationClass = properties.getProperty("implementationClass", DEFAULT_IMPLEMENTATION_CLASS);
+			if (implementationClass.equals(""))
+				implementationClass = DEFAULT_IMPLEMENTATION_CLASS;
+			try {
+				implementationClass_ = Class.forName(implementationClass);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
