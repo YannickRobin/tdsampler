@@ -12,7 +12,7 @@ import com.ebizance.tdsampler.context.TDSampler;
 import com.ebizance.tdsampler.context.TDSamplerContext;
 import com.ebizance.tdsampler.service.TDSamplerResult;
 import com.ebizance.tdsampler.service.TDSamplerService;
-import com.ebizance.tdsampler.stack.impl.ThreadDumpImplTest;
+import com.ebizance.tdsampler.stack.impl.DefaultThreadDumpParserTest;
 
 public class TDSamplerServiceTest {
 
@@ -20,7 +20,7 @@ public class TDSamplerServiceTest {
 	public void parseDefaultTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerService tdSamplerService = new TDSamplerService();
 		TDSamplerResult result = tdSamplerService.parse(path);
@@ -37,7 +37,7 @@ public class TDSamplerServiceTest {
 	public void parseIncludeListThreadTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		//tdSamplerContext.setCountDuplicatedMethods(true);
@@ -63,7 +63,7 @@ public class TDSamplerServiceTest {
 	public void parseExcludeListThreadTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		tdSamplerContext.setExcludeListThread("sun.rmi.transport.tcp.TCPTransport$AcceptLoop.run(TCPTransport.java:341)");
@@ -80,7 +80,7 @@ public class TDSamplerServiceTest {
 	public void parseIncludeListThreadNameTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		tdSamplerContext.setIncludeListThreadName("TP-Processor32");
@@ -97,7 +97,7 @@ public class TDSamplerServiceTest {
 	public void parseIncludeListThreadStateTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		tdSamplerContext.setIncludeListThreadState("RUNNABLE");
@@ -114,7 +114,7 @@ public class TDSamplerServiceTest {
 	public void parseIncludeListThreadStateWithIOWaitTest() throws Exception
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
-		String path = resourceDirPath + ThreadDumpImplTest.THREAD_DUMP_FILENAME_1;
+		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
 		
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		tdSamplerContext.setIncludeListThreadState("RUNNABLE");
