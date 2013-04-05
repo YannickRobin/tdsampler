@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.ebizance.tdsampler.context.TDSampler;
 import com.ebizance.tdsampler.context.TDSamplerContext;
 import com.ebizance.tdsampler.exception.TDSamplerException;
 import com.ebizance.tdsampler.model.Thread;
@@ -48,7 +49,7 @@ public class TDSamplerApp
     	}
 
     	try {
-			setContext();
+    		TDSampler.setContext(getConfiguredContext());
 		} catch (FileNotFoundException e) {
     		displayUsageMessage();
     		System.out.println("Configuration file not found...");
@@ -85,7 +86,7 @@ public class TDSamplerApp
     	displayMethods(result.getMethods(), result.getThreadCounter());
     }
 	
-	private static void setContext() throws FileNotFoundException, IOException
+	private static TDSamplerContext getConfiguredContext() throws FileNotFoundException, IOException
 	{
     	Properties properties = new Properties();
     		
@@ -96,8 +97,7 @@ public class TDSamplerApp
 			configurationFile = CONFIGURATION_FILE_DEFAULT;
 		   			
 		properties.load(new FileInputStream(configurationFile));
-		
-		
+			
 		TDSamplerContext tdSamplerContext = new TDSamplerContext();
 		tdSamplerContext.setCountDuplicatedMethods(Boolean.parseBoolean(properties.getProperty("countDuplicateMethods", "false")));
 		tdSamplerContext.setIncludeListThreadName(properties.getProperty("includeListThreadName", ""));
@@ -108,6 +108,7 @@ public class TDSamplerApp
 		tdSamplerContext.setExcludeListThread(properties.getProperty("excludeListThread", ""));
 		tdSamplerContext.setIncludeListIOWait(properties.getProperty("includeListIOWait", ""));
 		tdSamplerContext.setImplementationClass(properties.getProperty("implementationClass",""));
+		return tdSamplerContext;
 	}
 
 	private static void displayUsageMessage()
