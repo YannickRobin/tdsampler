@@ -58,9 +58,8 @@ public class TDSamplerService {
 			
 			ThreadDumpParser threadDumpParser = TDSampler.getContext().getThreadDumpParser();
 			logger.info("Parsing " + stackFiles[i] + "...");
-			System.out.println("Parsing " + stackFiles[i] + "...");
 
-			threadDumpParser.parse(path + File.separator + stackFiles[i]);
+			threadDumpParser.parse(dirpath + File.separator + stackFiles[i]);
 
 			threadCounter += threadDumpParser.getThreadCounter();
 			final Integer[] threadStateCounter = new Integer[6];
