@@ -11,4 +11,4 @@
   * Commit all your changes
   * {{{mvn -Dusername=[svnusername] -Dpassword=[svnpassword] release:prepare}}}
   * {{{mvn release:perform}}}
-  * Upload {{{TDSampler/target/checkout/target}}}
+  * Upload {{{TDSampler/target/checkout/target/TDSampler-x.x-bin.zip}}}
