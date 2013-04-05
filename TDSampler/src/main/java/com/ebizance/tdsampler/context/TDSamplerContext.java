@@ -198,7 +198,8 @@ public class TDSamplerContext
 	 */
 	public void setImplementationClass(String implementationClass)
 	{
-		this.implementationClass = implementationClass;
+		if (implementationClass != null && !implementationClass.equals(""))
+			this.implementationClass = implementationClass;
 	}
 	
 	public ThreadDumpParser getThreadDumpParser()

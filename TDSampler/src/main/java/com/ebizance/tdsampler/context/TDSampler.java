@@ -2,7 +2,7 @@ package com.ebizance.tdsampler.context;
 
 public class TDSampler {
 
-	private static final ThreadLocal<TDSamplerContext> context = new ThreadLocal<TDSamplerContext>()
+	private static final ThreadLocal<TDSamplerContext> context_ = new ThreadLocal<TDSamplerContext>()
 	{
 		@Override
 		protected TDSamplerContext initialValue()
@@ -11,10 +11,14 @@ public class TDSampler {
 		}
 	};
 	
+	public static void setContext(TDSamplerContext context)
+	{
+		context_.set(context);
+	}
 	
 	public static TDSamplerContext getContext()
 	{
-		return context.get();
+		return context_.get();
 	}
 	
 }
