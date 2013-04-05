@@ -73,7 +73,7 @@
               <classpathPrefix>../lib/</classpathPrefix>
             </manifest>
             <manifestEntries>
-              <Main-Class>com.ebizance.tdsampler.TDSampler</Main-Class>
+              <Main-Class>com.ebizance.tdsampler.TDSamplerApp</Main-Class>
               <url>${project.url}</url>
               <key>value</key>
             </manifestEntries>

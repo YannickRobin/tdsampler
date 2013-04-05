@@ -7,8 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
 
-import com.ebizance.tdsampler.TDSamplerConfig;
 import com.ebizance.tdsampler.TDSamplerUtil;
+import com.ebizance.tdsampler.context.TDSampler;
+import com.ebizance.tdsampler.exception.TDSamplerException;
 import com.ebizance.tdsampler.model.Thread;
 
 /**
@@ -19,9 +20,9 @@ import com.ebizance.tdsampler.model.Thread;
  * 
  */
 
-public abstract class ThreadDump {
+public abstract class ThreadDumpParser {
 
-    private static final Logger logger = Logger.getLogger(ThreadDump.class);
+    private static final Logger logger = Logger.getLogger(ThreadDumpParser.class);
     
 	protected Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
     protected BufferedReader in = null;
@@ -33,8 +34,12 @@ public abstract class ThreadDump {
     protected int threadCounterIOWait = 0;
     protected int threadCounterUnknown = 0;
     
-	public ThreadDump(String filePath)
+	public ThreadDumpParser()
 	{
+	}
+	
+    public void parse(String filePath)
+    {
 		logger.debug("File: " + filePath);
 		try {
 		    in = new BufferedReader(new FileReader(filePath));
@@ -45,14 +50,15 @@ public abstract class ThreadDump {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-    public void parse() throws IOException
-    {
+    	 	
     	String str;
-		while ((str = in.readLine()) != null) {	
-			if (str.contains("tid="))
-				parseThread(str);
+		try {
+			while ((str = in.readLine()) != null) {	
+				if (str.contains("tid="))
+					parseThread(str);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
     }
     
@@ -87,7 +93,7 @@ public abstract class ThreadDump {
 		if (!isValidThreadHeader(thread))
 			return;
 		
-		while ((str = in.readLine()) != null && str.contains("at ") || str.contains("- ") ) {
+		while ((str = in.readLine()) != null && (str.contains("at ") || str.contains("- ")) ) {
 			if (str.contains("at "))
 			{				
 				String method = str.substring("	at ".length(), str.length());
@@ -98,7 +104,7 @@ public abstract class ThreadDump {
 						thread.getMethods().put(method, 1);
 					else
 					{
-						if (TDSamplerConfig.countDuplicateMethods_)
+						if (TDSampler.getContext().isCountDuplicatedMethods())
 							thread.getMethods().put(method, counter + 1);
 					}
 				}
