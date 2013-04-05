@@ -8,17 +8,17 @@ import java.util.Map;
 
 import org.junit.Test;
 
-public class ThreadDumpImplTest {
+public class DefaultThreadDumpParserTest {
 
 	
-	public final static String THREAD_DUMP_FILENAME_1 = "td_test1.txt";
+	public final static String THREAD_DUMP_FILENAME = "default_threaddump_test.txt";
 	
 	@Test
 	public void parseThreadTest() throws IOException
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
 		DefaultThreadDumpParser threadDumpImpl = new DefaultThreadDumpParser();
-		threadDumpImpl.parse(resourceDirPath + THREAD_DUMP_FILENAME_1);
+		threadDumpImpl.parse(resourceDirPath + THREAD_DUMP_FILENAME);
 		
 		assertEquals(2, threadDumpImpl.getThreadCounter());
 		assertEquals(2, threadDumpImpl.getThreadCounterRunnable());

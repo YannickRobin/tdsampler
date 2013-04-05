@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 
 import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.context.TDSampler;
-import com.ebizance.tdsampler.exception.TDSamplerException;
 import com.ebizance.tdsampler.model.Thread;
 
 /**
