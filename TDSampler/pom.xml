@@ -3,7 +3,7 @@
 
   <groupId>com.ebizance.tdsampler</groupId>
   <artifactId>TDSampler</artifactId>
-  <version>1.6</version>
+  <version>1.7-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>TDSampler</name>
@@ -20,9 +20,9 @@
   	</developer>
   </developers>
   <scm>
-    <connection>scm:svn:https://tdsampler.googlecode.com/svn/tags/TDSampler-1.6</connection>
-    <developerConnection>scm:svn:https://tdsampler.googlecode.com/svn/tags/TDSampler-1.6</developerConnection>
-    <url>http://code.google.com/p/tdsampler/source/browse/tags/TDSampler-1.6</url>
+    <connection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/TDSampler</connection>
+    <developerConnection>scm:svn:https://tdsampler.googlecode.com/svn/trunk/TDSampler</developerConnection>
+    <url>http://code.google.com/p/tdsampler/source/browse/</url>
   </scm>
   
   <repositories>
