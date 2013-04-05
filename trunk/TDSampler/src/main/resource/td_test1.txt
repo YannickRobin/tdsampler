@@ -1,0 +1,43 @@
+2013-03-07 10:21:41
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (20.8-b03 mixed mode):
+
+"TP-Processor32" daemon prio=10 tid=0x00007fc4ec17a800 nid=0x32a2 runnable [0x00007fc4a9c2e000]
+   java.lang.Thread.State: RUNNABLE
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.read(SocketInputStream.java:129)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	at java.io.BufferedInputStream.read1(BufferedInputStream.java:258)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:317)
+	- locked <0x0000000795666798> (a java.io.BufferedInputStream)
+	at org.apache.jk.common.ChannelSocket.read(ChannelSocket.java:628)
+	at org.apache.jk.common.ChannelSocket.receive(ChannelSocket.java:566)
+	at org.apache.jk.common.ChannelSocket.processConnection(ChannelSocket.java:693)
+	at org.apache.jk.common.ChannelSocket$SocketConnection.runIt(ChannelSocket.java:898)
+	at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:690)
+	at java.lang.Thread.run(Thread.java:662)
+
+"RMI TCP Accept-0" daemon prio=10 tid=0x00007fc54c14e000 nid=0x59db runnable [0x00007fc538380000]
+   java.lang.Thread.State: RUNNABLE
+	at java.net.PlainSocketImpl.socketAccept(Native Method)
+	at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:408)
+	- locked <0x0000000680046000> (a java.net.SocksSocketImpl)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:462)
+	at java.net.ServerSocket.accept(ServerSocket.java:430)
+	at sun.management.jmxremote.LocalRMIServerSocketFactory$1.accept(LocalRMIServerSocketFactory.java:34)
+	at sun.rmi.transport.tcp.TCPTransport$AcceptLoop.executeAcceptLoop(TCPTransport.java:369)
+	at sun.rmi.transport.tcp.TCPTransport$AcceptLoop.run(TCPTransport.java:341)
+	at java.lang.Thread.run(Thread.java:662)
+
+"VM Thread" prio=10 tid=0x00007fc54c068000 nid=0x59cf runnable 
+
+"GC task thread#0 (ParallelGC)" prio=10 tid=0x00007fc54c01c800 nid=0x59cb runnable 
+
+"GC task thread#1 (ParallelGC)" prio=10 tid=0x00007fc54c01e800 nid=0x59cc runnable 
+
+"GC task thread#2 (ParallelGC)" prio=10 tid=0x00007fc54c020800 nid=0x59cd runnable 
+
+"GC task thread#3 (ParallelGC)" prio=10 tid=0x00007fc54c022000 nid=0x59ce runnable 
+
+"VM Periodic Task Thread" prio=10 tid=0x00007fc54c15f000 nid=0x59dc waiting on condition 
+
+JNI global references: 1382

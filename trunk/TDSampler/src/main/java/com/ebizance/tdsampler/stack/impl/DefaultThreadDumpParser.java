@@ -1,12 +1,13 @@
-package com.ebizance.tdsampler.stack;
+package com.ebizance.tdsampler.stack.impl;
 
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-import com.ebizance.tdsampler.TDSamplerConfig;
 import com.ebizance.tdsampler.TDSamplerUtil;
+import com.ebizance.tdsampler.context.TDSampler;
 import com.ebizance.tdsampler.model.Thread;
+import com.ebizance.tdsampler.stack.ThreadDumpParser;
 
 /**
  * 
@@ -14,13 +15,13 @@ import com.ebizance.tdsampler.model.Thread;
  *
  */
 
-public class ThreadDumpImpl extends ThreadDump {
+public class DefaultThreadDumpParser extends ThreadDumpParser {
 	
-    private static final Logger logger = Logger.getLogger(ThreadDumpImpl.class);
+    private static final Logger logger = Logger.getLogger(DefaultThreadDumpParser.class);
     
-	public ThreadDumpImpl(String filePath)
+	public DefaultThreadDumpParser()
 	{
-		super(filePath);
+		super();
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class ThreadDumpImpl extends ThreadDump {
 		}
 		
 		//exclude thread
-		String[] tokensExcludeListThread = TDSamplerConfig.excludeListThread_.split("[,]");
+		String[] tokensExcludeListThread = TDSampler.getContext().getExcludeListThread().split("[,]");
 		
 		for (int i=0; i<tokensExcludeListThread.length;i++)
 		{
@@ -58,10 +59,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		}
 		
 		//include thread
-		if (TDSamplerConfig.includeListThread_.equals(""))
+		if (TDSampler.getContext().getIncludeListThread().equals(""))
 			return true;
 		
-		String[] tokensIncludeListThread = TDSamplerConfig.includeListThread_.split("[,]");
+		String[] tokensIncludeListThread = TDSampler.getContext().getIncludeListThread().split("[,]");
 		
 		for (int i=0; i<tokensIncludeListThread.length;i++)
 		{
@@ -74,10 +75,10 @@ public class ThreadDumpImpl extends ThreadDump {
 	}
 
 	private boolean isValidThreadName(Thread thread) {
-		if (TDSamplerConfig.includeListThreadName_.equals(""))
+		if (TDSampler.getContext().getIncludeListThreadName().equals(""))
 			return true;
 		
-		String[] tokensIncludeList = TDSamplerConfig.includeListThreadName_.split("[,]");
+		String[] tokensIncludeList = TDSampler.getContext().getIncludeListThreadName().split("[,]");
 		
 		for (int i=0; i<tokensIncludeList.length;i++)
 		{
@@ -91,10 +92,10 @@ public class ThreadDumpImpl extends ThreadDump {
 	}
 	
 	private boolean isValidThreadState(Thread thread) {
-		if (TDSamplerConfig.includeListThreadState_.equals(""))
+		if (TDSampler.getContext().getIncludeListThreadState().equals(""))
 			return true;
 		
-		String[] tokensIncludeList = TDSamplerConfig.includeListThreadState_.split("[,]");
+		String[] tokensIncludeList = TDSampler.getContext().getIncludeListThreadState().split("[,]");
 		
 		for (int i=0; i<tokensIncludeList.length;i++)
 		{
@@ -122,10 +123,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		if (iterator.hasNext())
 			firstKey = iterator.next();
 		
-		if (TDSamplerConfig.includeListIOWait_.equals(""))
+		if (TDSampler.getContext().getIncludeListIOWait().equals(""))
 			return false;
 		
-		String[] tokensIncludeListIOWait = TDSamplerConfig.includeListIOWait_.split("[,]");
+		String[] tokensIncludeListIOWait = TDSampler.getContext().getIncludeListIOWait().split("[,]");
 		
 		for (int i=0; i<tokensIncludeListIOWait.length;i++)
 		{
@@ -140,7 +141,7 @@ public class ThreadDumpImpl extends ThreadDump {
 	public boolean isValidMethod(String str)
 	{		
 		//Include IOWait thread (mandatory for isIOWaitState validation)		
-		String[] tokensIncludeListIOWait = TDSamplerConfig.includeListIOWait_.split("[,]");
+		String[] tokensIncludeListIOWait = TDSampler.getContext().getIncludeListIOWait().split("[,]");
 		
 		for (int i=0; i<tokensIncludeListIOWait.length;i++)
 		{
@@ -150,9 +151,9 @@ public class ThreadDumpImpl extends ThreadDump {
 		
 		
 		//Exclude methods
-		if (!TDSamplerConfig.excludeListMethod_.equals(""))
+		if (!TDSampler.getContext().getExcludeListMethod().equals(""))
 		{	
-			String[] tokensExcludeListMethod = TDSamplerConfig.excludeListMethod_.split("[,]");
+			String[] tokensExcludeListMethod = TDSampler.getContext().getExcludeListMethod().split("[,]");
 			
 			for (int i=0; i<tokensExcludeListMethod.length;i++)
 			{
@@ -162,10 +163,10 @@ public class ThreadDumpImpl extends ThreadDump {
 		}
 		
 		//Include methods
-		if (TDSamplerConfig.includeListMethod_.equals(""))
+		if (TDSampler.getContext().getIncludeListMethod().equals(""))
 			return true;
 		
-		String[] tokensIncludeListMethod = TDSamplerConfig.includeListMethod_.split("[,]");
+		String[] tokensIncludeListMethod = TDSampler.getContext().getIncludeListMethod().split("[,]");
 		
 		for (int i=0; i<tokensIncludeListMethod.length;i++)
 		{
