@@ -13,7 +13,7 @@ If you have a performance issue that you can easily reproduce without load, you 
 
 #Releases
 
-* [ TDSampler-1.7-bin.zip](http://code.google.com/p/tdsampler/downloads/detail?name=TDSampler-1.7-bin.zip)
+* [ TDSampler-1.7-bin.zip](https://github.com/YannickRobin/tdsampler/archive/TDSampler-1.7.zip)
 
 #Compatibility
 
