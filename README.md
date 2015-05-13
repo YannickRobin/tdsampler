@@ -13,7 +13,7 @@ If you have a performance issue that you can easily reproduce without load, you 
 
 #Releases
 
-* [http://code.google.com/p/tdsampler/downloads/detail?name=TDSampler-1.7-bin.zip TDSampler-1.7-bin.zip]
+* [ TDSampler-1.7-bin.zip](http://code.google.com/p/tdsampler/downloads/detail?name=TDSampler-1.7-bin.zip)
 
 #Compatibility
 
@@ -22,7 +22,7 @@ Tested with JDK 6 on Linux RHE 5.7.
 #Getting started
 
 * Collect regular thread dumps on your running application using `jstack` command line (or `kill -3`). 
-  * Below is an example of script for Linux:
+* Below is an example of script for Linux:
 ```
 #!/bin/bash
 
@@ -34,7 +34,7 @@ jstack $( ps aux |grep java | grep -v grep |awk '{print $2}') > $FILE
 sleep 60;
 done
 ```
-  * Below is an example of script for Windows:
+* Below is an example of script for Windows:
 ```
 @echo off
 setlocal
@@ -57,7 +57,7 @@ Note, thread dumps should not contain bci info (do not generate with root).
 * Change `conf/conf.properties` to configure the hotspot report:
 
 |Key|Default|Comments|
-----------------------
+|---|-------|--------|
 |displayThreadStateReport|false|If 'true', display thread state report.|
 |countDuplicateMethods|false|if 'true', a method that appears twice in a stack is counted twice in the report.|
 |includeListIOWait|None|List of strings separated by a comma to indicate methods that are blocked by I/O wait. These methods don't consume CPU instead they perform network calls, involve OS background activity or delegate to other applications such as database engines (wall-clock time and not CPU time).|
