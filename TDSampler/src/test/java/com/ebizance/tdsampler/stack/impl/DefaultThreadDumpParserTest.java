@@ -1,10 +1,13 @@
 package com.ebizance.tdsampler.stack.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -18,7 +21,7 @@ public class DefaultThreadDumpParserTest {
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
 		DefaultThreadDumpParser threadDumpImpl = new DefaultThreadDumpParser();
-		threadDumpImpl.parse(resourceDirPath + THREAD_DUMP_FILENAME);
+		threadDumpImpl.parse(resourceDirPath + THREAD_DUMP_FILENAME, new HashMap(), new TreeSet());
 		
 		assertEquals(2, threadDumpImpl.getThreadCounter());
 		assertEquals(2, threadDumpImpl.getThreadCounterRunnable());

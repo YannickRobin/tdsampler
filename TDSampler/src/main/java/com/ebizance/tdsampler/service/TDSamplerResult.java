@@ -1,6 +1,9 @@
 package com.ebizance.tdsampler.service;
 
 import java.util.Map;
+import java.util.Set;
+
+import com.ebizance.tdsampler.model.MethodNode;
 
 
 public class TDSamplerResult
@@ -8,17 +11,21 @@ public class TDSamplerResult
 	private int threadCounter;
 	private Map<Integer, Integer[]> threadStates;
 	private Map<String, Integer> methods;
-
+	private Map<Integer, MethodNode> methodNodes;
+	private Set<MethodNode> rootMethods;
+	
 	/**
 	 * @param threadCounter
 	 * @param threadStates
 	 * @param methods
 	 */
-	public TDSamplerResult(final int threadCounter, final Map<Integer, Integer[]> threadStates, final Map<String, Integer> methods)
+	public TDSamplerResult(final int threadCounter, final Map<Integer, Integer[]> threadStates, final Map<String, Integer> methods, final Map<Integer, MethodNode> methodNodes, final Set<MethodNode> rootMethods)
 	{
 		this.threadCounter = threadCounter;
 		this.threadStates = threadStates;
 		this.methods = methods;
+		this.methodNodes = methodNodes;
+		this.rootMethods = rootMethods;
 	}
 
 	/**
@@ -70,5 +77,21 @@ public class TDSamplerResult
 	public void setMethods(final Map<String, Integer> methods)
 	{
 		this.methods = methods;
+	}
+
+	public Set<MethodNode> getRootMethods() {
+		return rootMethods;
+	}
+
+	public void setRootMethods(Set<MethodNode> rootMethods) {
+		this.rootMethods = rootMethods;
+	}
+
+	public Map<Integer, MethodNode> getMethodNodes() {
+		return methodNodes;
+	}
+
+	public void setMethodNodes(Map<Integer, MethodNode> methodNodes) {
+		this.methodNodes = methodNodes;
 	}
 }

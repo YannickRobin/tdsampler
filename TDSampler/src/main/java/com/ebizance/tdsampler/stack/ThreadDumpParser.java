@@ -3,12 +3,18 @@ package com.ebizance.tdsampler.stack;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.ebizance.tdsampler.TDSamplerUtil;
 import com.ebizance.tdsampler.context.TDSampler;
+import com.ebizance.tdsampler.exception.TDSamplerException;
+import com.ebizance.tdsampler.model.MethodNode;
 import com.ebizance.tdsampler.model.Thread;
 
 /**
@@ -24,6 +30,10 @@ public abstract class ThreadDumpParser {
     private static final Logger logger = Logger.getLogger(ThreadDumpParser.class);
     
 	protected Map<String, Integer> methods = new LinkedHashMap<String, Integer>(); 
+	private Map<Integer, MethodNode> methodNodes;
+	
+	// call tree
+	private Set<MethodNode> rootMethods;
     protected BufferedReader in = null;
     protected int threadCounter = 0;
     protected int threadCounterRunnable = 0;
@@ -32,12 +42,13 @@ public abstract class ThreadDumpParser {
     protected int threadCounterBlocked = 0;
     protected int threadCounterIOWait = 0;
     protected int threadCounterUnknown = 0;
+    protected int rootMethodCounter = 0;
     
 	public ThreadDumpParser()
 	{
 	}
 	
-    public void parse(String filePath)
+    public void parse(String filePath, Map<Integer, MethodNode>  methodNodes,  Set<MethodNode> rootMethodNodes)
     {
 		logger.debug("File: " + filePath);
 		try {
@@ -50,18 +61,39 @@ public abstract class ThreadDumpParser {
 			e.printStackTrace();
 		}
     	 	
+		this.rootMethods = rootMethodNodes;
+		this.methodNodes = methodNodes;
+		
     	String str;
 		try {
 			while ((str = in.readLine()) != null) {	
 				if (str.contains("tid="))
 					parseThread(str);
 			}
-		} catch (IOException e) {
+		} catch (IOException | TDSamplerException e) {
 			e.printStackTrace();
 		}
     }
     
-	private void parseThread(String str) throws IOException
+    private void assignNodeToParentNode(final MethodNode node, final MethodNode previousNode) throws TDSamplerException
+    {
+		if (previousNode != null) {
+			node.setParentNode(previousNode);
+			if (!previousNode.getSubMethodNodes().contains(node)) {
+				previousNode.getSubMethodNodes().add(node);
+			}
+		}
+    }
+    
+    public int hashCodeForMethod(String method, int parentHashCode) {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + parentHashCode;
+		return result;
+	}
+    
+	private void parseThread(String str) throws IOException, TDSamplerException
 	{
 		logger.debug("Thread: " + str);
 		Thread thread = new Thread();
@@ -93,27 +125,72 @@ public abstract class ThreadDumpParser {
 			return;
 		
 		while ((str = in.readLine()) != null && (str.contains("at ") || str.contains("- ")) ) {
+					
 			if (str.contains("at "))
 			{				
 				String method = str.substring("	at ".length(), str.length());
+				thread.getFullMethodStack().add(0, method);
 				if (isValidMethod(str))
 				{
 					Integer counter = (Integer)thread.getMethods().get(method);
 					if (counter == null)
-						thread.getMethods().put(method, 1);
+					{
+						thread.getMethods().put(method, 1);	
+					}
 					else
 					{
 						if (TDSampler.getContext().isCountDuplicatedMethods())
-							thread.getMethods().put(method, counter + 1);
+						{
+							thread.getMethods().put(method, counter + 1);	
+						}
 					}
-				}
+					
+				}	
 			}
 		}
 		
 		if (!isValidThread(thread))
+		{
 			return;
-
+		}
+		else
+		{
+			// update the call tree
+			MethodNode node = null;
+			MethodNode previousMethodNode = null;
+			if (CollectionUtils.isEmpty(thread.getFullMethodStack()))
+			{
+				logger.error("No stack found");
+			}
+			int parentHashCode = 0;
+			for (String method : thread.getFullMethodStack())
+			{
+				if (isValidMethod(method)) {
+					
+					int methodPathHash = hashCodeForMethod(method, parentHashCode);
+					parentHashCode = methodPathHash;
+					if (methodNodes.containsKey(methodPathHash)) {
+						node = methodNodes.get(methodPathHash);
+						node.increaseCount();
+					} else {
+						node = new MethodNode(method, 1);
+						methodNodes.put(methodPathHash, node);
+					}
+					
+					assignNodeToParentNode(node, previousMethodNode);
+					
+					// root of the thread
+					if (previousMethodNode == null) {
+						rootMethodCounter++;
+						rootMethods.add(node);
+					}
+					previousMethodNode = node;
+				}
+			}
+		}
+		
 		threadCounter++;
+		
 		int state  = thread.getState();		
 		switch(state) {
 			case Thread.STATE_RUNNABLE:
@@ -174,4 +251,35 @@ public abstract class ThreadDumpParser {
 	public abstract boolean isValidThreadHeader(Thread thread);
 	public abstract boolean isValidThread(Thread thread);
 	public abstract boolean isValidMethod(String str);
+
+	
+	public Set<MethodNode> getRootMethods() {
+		return rootMethods;
+	}
+
+	public void setRootMethods(Set<MethodNode> rootMethods) {
+		this.rootMethods = rootMethods;
+	}
+
+	public Map<Integer, MethodNode> getMethodNodes() {
+		return methodNodes;
+	}
+
+	public void setMethodNodes(Map<Integer, MethodNode> methodNodes) {
+		this.methodNodes = methodNodes;
+	}
+
+	/**
+	 * @return the rootMethodCounter
+	 */
+	public int getRootMethodCounter() {
+		return rootMethodCounter;
+	}
+
+	/**
+	 * @param rootMethodCounter the rootMethodCounter to set
+	 */
+	public void setRootMethodCounter(int rootMethodCounter) {
+		this.rootMethodCounter = rootMethodCounter;
+	}
 }

@@ -21,6 +21,8 @@ public class TDSamplerServiceTest {
 	{
 		String resourceDirPath = "src" + File.separator + "main" + File.separator + "resource" + File.separator;
 		String path = resourceDirPath + DefaultThreadDumpParserTest.THREAD_DUMP_FILENAME;
+		TDSamplerContext tdSamplerContext = new TDSamplerContext();
+		TDSampler.setContext(tdSamplerContext);
 		
 		TDSamplerService tdSamplerService = new TDSamplerService();
 		TDSamplerResult result = tdSamplerService.parse(path);

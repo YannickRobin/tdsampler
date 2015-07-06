@@ -2,14 +2,17 @@ package com.ebizance.tdsampler.service;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import com.ebizance.tdsampler.TDSamplerUtil;
-
 import com.ebizance.tdsampler.context.TDSampler;
 import com.ebizance.tdsampler.exception.TDSamplerException;
+import com.ebizance.tdsampler.model.MethodNode;
 import com.ebizance.tdsampler.model.Thread;
 import com.ebizance.tdsampler.stack.ThreadDumpParser;
 
@@ -53,15 +56,20 @@ public class TDSamplerService {
 		final Map<Integer, Integer[]> threadStates = new HashMap<Integer, Integer[]>();
 
 		int threadCounter = 0;
+		int rootThreadCount = 0;
+		final Map<Integer, MethodNode> methodNodes = new HashMap<Integer, MethodNode>();
+		final Set<MethodNode> rootNodes = new HashSet<MethodNode>();
 		for (int i = 0; i < stackFiles.length; i++)
 		{
 			
 			ThreadDumpParser threadDumpParser = TDSampler.getContext().getThreadDumpParser();
 			logger.info("Parsing " + stackFiles[i] + "...");
 
-			threadDumpParser.parse(dirpath + File.separator + stackFiles[i]);
+			threadDumpParser.parse(dirpath + File.separator + stackFiles[i], methodNodes, rootNodes);
 
 			threadCounter += threadDumpParser.getThreadCounter();
+			rootThreadCount += threadDumpParser.getRootMethodCounter();
+			
 			final Integer[] threadStateCounter = new Integer[6];
 			threadStateCounter[Thread.STATE_RUNNABLE] = Integer.valueOf(threadDumpParser.getThreadCounterRunnable());
 			threadStateCounter[Thread.STATE_WAITING] = Integer.valueOf(threadDumpParser.getThreadCounterWaiting());
@@ -82,8 +90,7 @@ public class TDSamplerService {
 			}
 		}
 		methods = TDSamplerUtil.sortHashMapByValues(methods, false);
-
-		return new TDSamplerResult(threadCounter, threadStates, methods);
+		return new TDSamplerResult(threadCounter, threadStates, methods, methodNodes, new TreeSet<MethodNode>(rootNodes));
 	}
 
     private static String[] getStackFiles(String dirPath)

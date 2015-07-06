@@ -1,7 +1,8 @@
 package com.ebizance.tdsampler.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ebizance.tdsampler.TDSamplerUtil;
@@ -19,6 +20,7 @@ public class Thread {
 
 
 	private Map<String, Integer> methods = new LinkedHashMap<String, Integer>();
+	private List<String> fullMethodStack = new ArrayList<String>();
 
 	public static final int STATE_RUNNABLE=0;
 	public static final int STATE_WAITING=1;
@@ -61,5 +63,19 @@ public class Thread {
 
 	public void setMethods(Map<String, Integer> methods) {
 		this.methods = methods;
+	}
+
+	/**
+	 * @return the fullMethodStack
+	 */
+	public List<String> getFullMethodStack() {
+		return fullMethodStack;
+	}
+
+	/**
+	 * @param fullMethodStack the fullMethodStack to set
+	 */
+	public void setFullMethodStack(List<String> fullMethodStack) {
+		this.fullMethodStack = fullMethodStack;
 	}
 }
