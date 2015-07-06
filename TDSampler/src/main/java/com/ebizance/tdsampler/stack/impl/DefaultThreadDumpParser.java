@@ -1,6 +1,10 @@
 package com.ebizance.tdsampler.stack.impl;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -18,6 +22,8 @@ import com.ebizance.tdsampler.stack.ThreadDumpParser;
 public class DefaultThreadDumpParser extends ThreadDumpParser {
 	
     private static final Logger logger = Logger.getLogger(DefaultThreadDumpParser.class);
+    
+    private Map<String, Pattern> patternsCache = new HashMap<String, Pattern>();
     
 	public DefaultThreadDumpParser()
 	{
@@ -48,13 +54,12 @@ public class DefaultThreadDumpParser extends ThreadDumpParser {
 		
 		//exclude thread
 		String[] tokensExcludeListThread = TDSampler.getContext().getExcludeListThread().split("[,]");
-		
-		for (int i=0; i<tokensExcludeListThread.length;i++)
-		{
-			if (thread.getMethods().containsKey(tokensExcludeListThread[i]))
-			{
-				logger.debug("Thread no valid because into the exlude list");
-				return false;
+		if (!TDSampler.getContext().getExcludeListThread().equals("")) {
+			for (int i = 0; i < tokensExcludeListThread.length; i++) {
+				if (matches(thread.getFullMethodStack(), tokensExcludeListThread[i])) {
+					logger.debug("Thread no valid because into the exlude list");
+					return false;
+				}
 			}
 		}
 		
@@ -66,7 +71,7 @@ public class DefaultThreadDumpParser extends ThreadDumpParser {
 		
 		for (int i=0; i<tokensIncludeListThread.length;i++)
 		{
-			if (thread.getMethods().containsKey(tokensIncludeListThread[i]))
+			if (matches(thread.getFullMethodStack(), tokensIncludeListThread[i]))
 				return true;
 		}
 		logger.debug("Thread no valid because not into the include list");
@@ -82,7 +87,7 @@ public class DefaultThreadDumpParser extends ThreadDumpParser {
 		
 		for (int i=0; i<tokensIncludeList.length;i++)
 		{
-			if (thread.getName().contains(tokensIncludeList[i]))
+			if (matches(thread.getName(),tokensIncludeList[i]))
 				return true;
 		}
 		
@@ -137,44 +142,78 @@ public class DefaultThreadDumpParser extends ThreadDumpParser {
 		return false;
 	}
 	
+	protected boolean matches(List<String> methods, String pattern)
+	{
+		for (String method : methods)
+		{
+			if (matches(method, pattern))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	protected boolean matches(String method, String pattern)
+	{
+		String methodStripped = method.replaceFirst("\tat ", "");
+		// regex wild card
+		if (pattern.contains("*") )
+		{
+			
+			if (patternsCache.containsKey(pattern))
+			{
+				return patternsCache.get(pattern).matcher(methodStripped).matches();
+			}
+			else
+			{
+				String fixedPattern = pattern.replaceAll("\\*", ".*");
+				Pattern regExPattern = Pattern.compile(fixedPattern);
+				patternsCache.put(pattern, regExPattern);
+				return regExPattern.matcher(methodStripped).matches();
+			}
+		}
+		else
+		{
+			return methodStripped.contains(pattern);
+		}
+	}
+	
 	@Override
 	public boolean isValidMethod(String str)
 	{		
-		//Include IOWait thread (mandatory for isIOWaitState validation)		
-		String[] tokensIncludeListIOWait = TDSampler.getContext().getIncludeListIOWait().split("[,]");
 		
-		for (int i=0; i<tokensIncludeListIOWait.length;i++)
-		{
-			if (str.contains(tokensIncludeListIOWait[i]))
-				return true;
+		// Include IOWait thread (mandatory for isIOWaitState validation)
+		if (!TDSampler.getContext().getIncludeListIOWait().equals("")) {
+			String[] tokensIncludeListIOWait = TDSampler.getContext().getIncludeListIOWait().split("[,]");
+
+			for (int i = 0; i < tokensIncludeListIOWait.length; i++) {
+				if (matches(str,tokensIncludeListIOWait[i]))
+					return true;
+			}
 		}
-		
-		
-		//Exclude methods
-		if (!TDSampler.getContext().getExcludeListMethod().equals(""))
-		{	
+		// Exclude methods
+		if (!TDSampler.getContext().getExcludeListMethod().equals("")) {
 			String[] tokensExcludeListMethod = TDSampler.getContext().getExcludeListMethod().split("[,]");
-			
-			for (int i=0; i<tokensExcludeListMethod.length;i++)
-			{
-				if (str.contains(tokensExcludeListMethod[i]))
+
+			for (int i = 0; i < tokensExcludeListMethod.length; i++) {
+				if (matches(str,tokensExcludeListMethod[i]))
 					return false;
-			}	
+			}
 		}
-		
-		//Include methods
+
+		// Include methods
 		if (TDSampler.getContext().getIncludeListMethod().equals(""))
 			return true;
-		
+
 		String[] tokensIncludeListMethod = TDSampler.getContext().getIncludeListMethod().split("[,]");
-		
-		for (int i=0; i<tokensIncludeListMethod.length;i++)
-		{
-			if (str.contains(tokensIncludeListMethod[i]))
+
+		for (int i = 0; i < tokensIncludeListMethod.length; i++) {
+			if (matches(str,tokensIncludeListMethod[i]))
 				return true;
-		}	
-		
-		return false;
+		}
+
+		return true;
 	}
 
 }

@@ -6,7 +6,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.ebizance.tdsampler.model.MethodNode;
 import com.ebizance.tdsampler.model.Thread;
 
 /**
@@ -37,22 +41,22 @@ public class TDSamplerUtil {
     	} 
     }
 
-    public static LinkedHashMap sortHashMapByValues(Map passedMap, boolean ascending) {
-    	List mapKeys = new ArrayList(passedMap.keySet());
-    	List mapValues = new ArrayList(passedMap.values());
+    public static LinkedHashMap<String, Integer> sortHashMapByValues(Map<String, Integer> passedMap, boolean ascending) {
+    	final List<String> mapKeys = new ArrayList<String>(passedMap.keySet());
+    	final List<Integer> mapValues = new ArrayList<Integer>(passedMap.values());
     	Collections.sort(mapValues);
     	Collections.sort(mapKeys);
 
     	if (!ascending)
     		Collections.reverse(mapValues);
 
-    	LinkedHashMap someMap = new LinkedHashMap();
-    	Iterator valueIt = mapValues.iterator();
+    	final LinkedHashMap<String, Integer> someMap = new LinkedHashMap<String, Integer>();
+    	Iterator<Integer> valueIt = mapValues.iterator();
     	while (valueIt.hasNext()) {
-    		Object val = valueIt.next();
-    		Iterator keyIt = mapKeys.iterator();
+    		Integer val = valueIt.next();
+    		final Iterator<String> keyIt = mapKeys.iterator();
 	    	while (keyIt.hasNext()) {
-	    		Object key = keyIt.next();
+	    		String key = keyIt.next();
 	    		if (passedMap.get(key).toString().equals(val.toString())) {
 	    			passedMap.remove(key);
 	    			mapKeys.remove(key);
@@ -63,7 +67,7 @@ public class TDSamplerUtil {
     	}
     	return someMap;
     }
-    
+     
     public static int getState(String sState) {	
 		int state;
 		

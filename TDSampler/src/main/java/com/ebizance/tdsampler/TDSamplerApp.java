@@ -3,18 +3,29 @@ package com.ebizance.tdsampler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import com.ebizance.tdsampler.context.TDSampler;
 import com.ebizance.tdsampler.context.TDSamplerContext;
 import com.ebizance.tdsampler.exception.TDSamplerException;
+import com.ebizance.tdsampler.model.MethodNode;
 import com.ebizance.tdsampler.model.Thread;
 import com.ebizance.tdsampler.service.TDSamplerResult;
 import com.ebizance.tdsampler.service.TDSamplerService;
@@ -39,6 +50,7 @@ public class TDSamplerApp
 {
     private static final String CONFIGURATION_FILE_DEFAULT = ".." + File.separator + "conf" + File.separator + "conf.properties"; 
 	private static final Logger logger = Logger.getLogger(TDSamplerApp.class);
+	private static final int DEPTH_LIMIT = 50;
 	
 	public static void main(String[] args)
     {    	
@@ -84,6 +96,7 @@ public class TDSamplerApp
     	if (args.length > 1 && args[1] != null && args[1].equals("-thread_report"))
     		displayThreads(result.getThreadStates());
     	displayMethods(result.getMethods(), result.getThreadCounter());
+    	displayCallTree(result);
     }
 	
 	private static TDSamplerContext getConfiguredContext() throws FileNotFoundException, IOException
@@ -108,6 +121,9 @@ public class TDSamplerApp
 		tdSamplerContext.setExcludeListThread(properties.getProperty("excludeListThread", ""));
 		tdSamplerContext.setIncludeListIOWait(properties.getProperty("includeListIOWait", ""));
 		tdSamplerContext.setImplementationClass(properties.getProperty("implementationClass",""));
+		tdSamplerContext.setExcludeListThread("java.lang.ref.Reference$ReferenceHandler.run(*),java.util.concurrent.ThreadPoolExecutor.getTask(*),de.hybris.platform.util.threadpool.PoolableThread.resetAndReturnToPool(*),org.apache.tomcat.util.threads.TaskQueue.take(*),java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(*)");
+		tdSamplerContext.setExcludeListMethod("org.apache,java.lang.reflect,sun.reflect,java.util.concurrent.ThreadPoolExecutor,javax.servlet,org.springframework,de.hybris.platform.servicelayer.web,java.lang.Thread");
+		tdSamplerContext.setIncludeListThread("de.hybris.platform.servicelayer.web.XSSFilter.doFilter(*)");
 		return tdSamplerContext;
 	}
 
@@ -160,4 +176,126 @@ public class TDSamplerApp
     	} 
     }
     
+    private static String getResourceAsString(String resource)
+    {
+    	InputStream stream = TDSamplerApp.class.getResourceAsStream(resource);
+    	try {
+			return IOUtils.toString(stream);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Could not load resource: " + resource, e);
+		}
+    }
+    
+    private static void displayCallTree(TDSamplerResult tdSamplerResult)
+    {
+    	String jsonTree = createJSONCallTree(tdSamplerResult);
+    	
+    	
+    	
+		FileWriter fileWriter;
+		try {
+			File callTreeFile = new File("calltree-" + System.currentTimeMillis() + ".html");
+			System.out.println("Creating HTML Call Tree");
+			fileWriter = new FileWriter(callTreeFile);
+			fileWriter.write("<!DOCTYPE html>");
+			fileWriter.write("<html>\n");
+			fileWriter.write("<head>\n");
+			fileWriter.write("<title>\n");
+			fileWriter.write("TDSampler Call Tree\n");
+			fileWriter.write("</title>\n");
+			//fileWriter.write("<script src=\"jquery-1.7.2.min.js\"></script>\n");
+			//fileWriter.write("<script src=\"tree.jquery.js\"></script>\n");
+			fileWriter.write("<style>\n");
+			fileWriter.write(getResourceAsString("/calltree/jqtree.css"));
+			fileWriter.write("</style>\n");
+			fileWriter.write("</head>\n");
+			fileWriter.write("<body>\n");
+			fileWriter.write("Thread Count: " + tdSamplerResult.getThreadCounter());
+			fileWriter.write("<div id=\"callTree\"></div>\n");
+			fileWriter.write("<script>\n");
+			fileWriter.write(getResourceAsString("/calltree/jquery-1.7.2.min.js") + "\n");
+			fileWriter.write(getResourceAsString("/calltree/tree.jquery.js") + "\n");
+			fileWriter.write("var data = " + jsonTree);
+			fileWriter.write("\n$(function() {\n");
+			fileWriter.write("$('#callTree').tree({\n");
+			fileWriter.write("data: data, autoEscape: false\n");
+			fileWriter.write("});\n");
+			fileWriter.write("});\n");
+			fileWriter.write("</script>\n");
+			fileWriter.write("</body>\n");
+			fileWriter.write("</html>\n");
+			fileWriter.close();
+			System.out.println("File created: " + callTreeFile.getAbsolutePath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected static String createJSONCallTree(final TDSamplerResult result)
+	{
+		final JSONArray nodeArray = new JSONArray();
+		final int depth = 1;
+		for (final MethodNode node : result.getRootMethods())
+		{
+			try
+			{
+				processNode(node, 0, result, nodeArray, depth);
+			}
+			catch (final IOException e)
+			{
+				throw new IllegalStateException("Couldn't create call tree in JSON", e);
+			}
+		}
+
+		String jsonString = nodeArray.toJSONString();
+		jsonString = jsonString.replaceAll("<\\\\/", "</");
+		return jsonString;
+	}
+
+	protected static boolean containsNodeObj(final JSONArray nodeArray, final String method)
+	{
+		if (CollectionUtils.isNotEmpty(nodeArray))
+		{
+			for (final Object obj : nodeArray)
+			{
+				final JSONObject nodeObj = (JSONObject) obj;
+				if (((String) nodeObj.get("label")).startsWith(method))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected static void processNode(final MethodNode methodNode, final int level, final TDSamplerResult result, final JSONArray nodeArray, final int depth) throws IOException
+	{
+		if (containsNodeObj(nodeArray, methodNode.getMethod()))
+		{
+			return;
+		}
+
+		final JSONObject nodeObj = new JSONObject();
+		nodeObj.put(
+				"label",
+				methodNode.getMethod() + "     <span class='percentageColumn'>" + methodNode.getCount() * 100
+						/ result.getThreadCounter() + "%</span> <span class='countColumn'>" + methodNode.getCount() + "</span>");
+
+		nodeArray.add(nodeObj);
+
+		//processedMethods.add(methodNode.getMethod());
+		if (depth < DEPTH_LIMIT)
+		{
+			if (!methodNode.getSubMethodNodes().isEmpty())
+			{
+				final JSONArray childArray = new JSONArray();
+				nodeObj.put("children", childArray);
+				for (final MethodNode childNode : methodNode.getSubMethodNodes())
+				{
+					processNode(childNode, level + 1, result, childArray, depth + 1);
+				}
+			}
+		}
+    }
 }
