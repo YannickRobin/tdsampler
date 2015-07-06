@@ -1,13 +1,13 @@
 package com.ebizance.tdsampler.model;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class MethodNode implements Comparable<MethodNode>{
 
 	private String method;
 	private int count;
-	private Set<MethodNode> subMethodNodes = new TreeSet<MethodNode>();
+	private Set<MethodNode> subMethodNodes = new HashSet<MethodNode>();
 	private MethodNode parentNode;
 	
 	public MethodNode() {
